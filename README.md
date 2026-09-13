@@ -1,12 +1,14 @@
-# Generative Digital-Twin Methods for Spacecraft FDIR
+# Generative Digital Twin Methods for Spacecraft Telemetry Anomaly Detection
+
+### Toward Data-Driven FDIR Design and Testing
 
 Synthetic fault data from a class-conditional WGAN-GP, evaluated as a substitute for real
 labelled faults **and** as a controllable fault source for FDIR design, on the **NASA SMAP/MSL**
 telemetry benchmark — under a **leak-free, channel-level held-out protocol**.
 
-> MSc Aeronautical Engineering thesis, *Generative Digital Twin Methods to Support FDIR Design
-> and Testing.* Candidate: **Mehrab Jamshidi** — Supervisor: **Prof. Andrea Colagrossi**,
-> Politecnico di Milano, 2026.
+> MSc thesis in Aeronautical Engineering — Ingegneria Aeronautica.
+> Candidate: **Mehrab Jamshidi** (10976258) — Advisor: **Prof. Andrea Colagrossi**.
+> Politecnico di Milano, Department of Aerospace Science and Technology, Academic Year 2025–26.
 >
 > 📄 Full thesis: [`docs/Mehrab_Jamshidi_thesis.pdf`](docs/Mehrab_Jamshidi_thesis.pdf) ·
 > 📄 One-page summary: [`docs/Mehrab_Jamshidi_Thesis_OnePager.pdf`](docs/Mehrab_Jamshidi_Thesis_OnePager.pdf)
@@ -17,8 +19,10 @@ telemetry benchmark — under a **leak-free, channel-level held-out protocol**.
 
 Classical model-based FDIR (running-variance / 3σ thresholding) is structurally blind to
 **contextual** anomalies — faults that stay within normal amplitude bounds but change the
-signal's temporal pattern, such as a slow gyro drift. Across the 82 benchmark channels a 3σ
-amplitude detector reaches a **median F1 of 0.02**.
+signal's temporal pattern, such as a slow gyro drift. They are not an edge case: **43 of the
+105** labelled anomalies in this benchmark are contextual (the other 62 are point anomalies).
+Across the 81 unique channels a 3σ amplitude detector reaches a **mean F1 of 0.183 and a median
+of 0.019** — 35 channels score exactly zero — collapsing to **0.052** on contextual channels.
 
 This project asks whether a **generative model** trained on real telemetry can
 
@@ -50,7 +54,7 @@ anomaly sequence — so the channel is the only clean unit. The reasoning is wri
 | **Synthetic-vs-real substitution (SVM)** | synthetic **0.474** vs real **0.631** — paired Wilcoxon **p = 0.13** (no detectable difference) |
 | **VAE deployable threshold** | classical k3 **0.397** (within-run oracle 0.486); no synthetic rule beats k3 (best vs k3 p = 0.29) |
 | **LSTM deployable threshold** | classical k3 **0.543** (within-run oracle 0.614); the synthetic "win" is a grid artefact (p = 0.69) |
-| **GAN fidelity** | TSTR 0.405; Fréchet — contextual 0.141, point 0.403; ACF \|Δ\| ≈ 0.02 |
+| **GAN fidelity** | TSTR **0.474** on held-out (0.57 point / 0.24 contextual); Fréchet — contextual 0.141, point 0.403; ACF \|Δ\| — contextual 0.026, point 0.015 |
 | **Data-efficiency** | flat (0.474 → 0.465) — cross-channel real labels do not transfer; equivalent-windows claim withdrawn |
 | **Augmentation** | synthetic *substitutes for* cross-channel real (both ≈ 0.47) but does *not* augment it |
 | **Sensitivity (the design contribution)** | F1 surface **0.255 → 0.845** over fault severity α × duration d; latency < 1 → ~30 steps; **duration dominates severity** |
@@ -73,9 +77,11 @@ faint/short corner to 0.845 in the large/long corner.
 
 The practical lesson is that **duration dominates severity**. Sweeping duration at fixed
 α = 0.1 moves F1 by 0.44; sweeping severity at fixed d = 16 moves it by only 0.19. A long faint
-fault is far more detectable than a short loud one. The α = 0 control row fixes the
-false-positive rate of the k3 threshold on untouched nominal data at 0.0106, which is what
-makes the rest of the surface interpretable.
+fault is far more detectable than a short loud one. The α = 0 control row measures the
+false-positive rate of the k3 threshold on untouched nominal data — **median 0.011**, which is
+what makes the rest of the surface interpretable; the mean is far higher at 0.123, inflated by
+two channels (D-5, R-1) that flag their entire clean stream. Both are reported so the floor is
+not understated.
 
 ### P-1: a contextual fault the classical detector cannot see
 
@@ -224,17 +230,22 @@ model is seeded, the F1 and latency surfaces reproduce to four decimals.
 
 ## Method, in one paragraph each
 
-- **Phase 1 — baselines.** A z-score 3σ threshold detector (median F1 ≈ 0.02 across the
-  benchmark; blind on contextual channels) plus supervised SVM/ANN classifiers, establishing
-  the classical detection floor. A Simulink drift-fault simulation shows the same gap in a
-  controlled spacecraft-attitude setting.
-- **Phase 2 — unsupervised detectors.** A VAE (reconstruction error) and an LSTM
-  (one-step-ahead prediction error), both trained on nominal data only and validated against
-  the Hundman et al. (2018) benchmark; these are the detectors whose thresholds Phase 4 tries
-  to set with synthetic data.
-- **Phase 3 — clean generator.** A class-conditional WGAN-GP with an autocorrelation-matching
-  loss and a spectral-normalised critic, trained **only** on anomaly windows from the 61
-  training channels.
+- **Phase 1 — baselines.** A z-score 3σ threshold detector (mean F1 0.183, median 0.019 across
+  the 81 channels; 0.052 on contextual channels) plus supervised SVM/ANN classifiers,
+  establishing the classical detection floor. A Simulink drift-fault simulation shows the same
+  gap in a controlled spacecraft-attitude setting: a gyroscope drift injected at t = 300 s
+  drives the estimation error to ~14 deg/s while the running-variance monitor never trips.
+- **Phase 2 — unsupervised detectors.** A VAE (reconstruction error, 0.590 mean / 0.638
+  contextual at the oracle threshold) and an LSTM (one-step-ahead prediction error, 0.743 mean
+  / **0.836 contextual**), both trained on nominal data only. The LSTM reproduces the Hundman
+  et al. (2018) SMAP benchmark to within **0.006** (0.746 vs 0.752), which independently
+  validates the whole pipeline. These are the detectors whose thresholds Phase 4 tries to set
+  with synthetic data.
+- **Phase 3 — clean generator.** A class-conditional WGAN-GP trained **only** on anomaly
+  windows from the 61 training channels, with four architectural contributions over a standard
+  conditional WGAN-GP: a 1-D convolutional generator and critic, an explicit
+  autocorrelation-matching loss, per-class specialised generators, and a spectrally normalised
+  critic compatible with the gradient penalty.
 - **Phase 4 — synthetic-to-real.** Three questions on the 20 held-out channels: can synthetic
   faults *substitute* for real labels (SVM); can they *set a deployable threshold* better than
   3σ (VAE, LSTM); and — the core contribution — what does the detector's F1-and-latency
@@ -245,13 +256,32 @@ model is seeded, the F1 and latency surfaces reproduce to four decimals.
 
 ## Notes on rigour
 
+- **This is not a Digital Twin.** There is no synchronised virtual replica of a specific
+  spacecraft, no automated physical-to-digital or digital-to-physical data flow, and no
+  closed-loop reconfiguration. What is developed here are the generative *methods* that would
+  form the learning and fault-management layer of a Cognitive (Level 5) Digital Twin in the
+  maturity framework of Wei et al. The phrase "generative Digital Twin methods" should be read
+  in exactly that sense — methods directed *toward* such a twin, not a twin delivered.
+- **Point-adjust inflates absolute F1.** As Kim et al. (2022) show, crediting a whole
+  ground-truth segment when any single step inside it is flagged raises scores substantially on
+  datasets with long anomaly segments. It is used here because it is the protocol under which
+  the Hundman et al. benchmark is reported, and it is applied identically to every method — so
+  the *relative* ordering of methods, on which the argument rests, is unaffected. Absolute
+  values are benchmark-comparable under point-adjust, not point-wise scores.
 - Results are reported on a **single** stratified 61/20 split (n = 20). Significance is
   therefore reported as the *absence of a detectable difference* (paired Wilcoxon), not as
-  proof of equality.
+  proof of equality. The SVM substitution gap is 0.157, 95% CI [−0.04, +0.35] — wide, and
+  spanning zero.
 - The synthetic **point**-class fidelity (Fréchet 0.403) is weaker than the contextual class
   (0.141): synthetic point windows are slightly smoother than the sharpest real spikes. This is
-  disclosed and does not undermine downstream detection (the amplitude-sensitive SVM still
-  reaches 0.60 on point channels).
+  disclosed and does not undermine downstream detection (the amplitude-sensitive SVM reaches
+  0.651 on point channels in Phase 2).
+- The four architectural contributions were adopted together and motivated qualitatively; their
+  individual marginal effect was **not** isolated in a controlled ablation, and no
+  nearest-neighbour memorisation check was run.
+- The sensitivity surface characterises detectability of **generator-produced** faults
+  parameterised by the injection model, not of arbitrary physical faults; extrapolating it to
+  real graded faults rests on the generator's realism and is not yet validated.
 - "Oracle" appears in two distinct senses: the **within-run** oracle (best threshold for the
   Phase-4 detector, bounding the threshold-rule study) and the **real-data** oracle (best
   real-trained detector, shown for reference). They are labelled separately wherever they appear.
@@ -262,11 +292,14 @@ model is seeded, the F1 and latency surfaces reproduce to four decimals.
   `results/phase4_master_comparison.csv` — and the corresponding "P3 TSTR" bar in the P-1
   figure — is read from the *pre-held-out* generator's TSTR table
   (`results/gan_v3_tstr_results.csv`), which was trained on all channels including these 20, so
-  it is optimistic on exactly them (0.487 there vs 0.450 for the clean generator). It is kept
-  as-is so the code reproduces the thesis figures exactly. It is a reference column only: no
-  headline result, significance test, or other figure depends on it. The comment in
-  `build_master()` in `phase4_synthetic_training.py` explains how to switch it to the clean
-  table.
+  it is optimistic on exactly them: **0.487**, against **0.450** for the clean generator scored
+  on the same channels. This column is what appears as the `TSTR` column of the thesis's
+  Table B.2 (mean 0.487), whereas the thesis text in §4.6 reports the held-out transfer as
+  **0.474** — the clean synthetic-trained SVM (`svm_p4_f1`; 0.57 point / 0.24 contextual, which
+  matches §4.6 exactly). Two different quantities travel under one name. The column is kept
+  as-is here so the code reproduces the committed tables and figures exactly; no headline
+  result, significance test, or other figure depends on it. The comment in `build_master()` in
+  `phase4_synthetic_training.py` explains how to switch it to the clean table.
 
 ---
 
@@ -281,9 +314,11 @@ author's own, and all reported numbers were verified against the underlying data
 
 ```bibtex
 @mastersthesis{jamshidi2026generative,
-  title  = {Generative Digital Twin Methods to Support FDIR Design and Testing},
+  title  = {Generative Digital Twin Methods for Spacecraft Telemetry Anomaly
+            Detection: Toward Data-Driven {FDIR} Design and Testing},
   author = {Jamshidi, Mehrab},
   school = {Politecnico di Milano, Department of Aerospace Science and Technology},
+  type   = {MSc thesis in Aeronautical Engineering},
   year   = {2026}
 }
 ```

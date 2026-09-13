@@ -6,7 +6,9 @@ PHASE 3 — Conditional WGAN-GP for Spacecraft Telemetry Fault Synthesis
 
 Author:     Mehrab Jamshidi — Politecnico di Milano
 Supervisor: Prof. Andrea Colagrossi
-Thesis:     Generative Digital Twin Methods to Support FDIR Design and Testing
+Thesis:     Generative Digital Twin Methods for Spacecraft Telemetry Anomaly
+            Detection: Toward Data-Driven FDIR Design and Testing
+            MSc Aeronautical Engineering, Politecnico di Milano, AY 2025-26
 
 ================================================================================
 WHAT THIS SCRIPT PRODUCES
@@ -42,15 +44,26 @@ one labelled anomaly sequence — so the channel is the only clean unit. See
 docs/CLEAN_RERUN_PROTOCOL.md for the full argument.
 
 ================================================================================
-THE FIVE DESIGN DECISIONS
+THE FOUR ARCHITECTURAL CONTRIBUTIONS
 ================================================================================
+
+These are the four choices that go beyond a standard conditional WGAN-GP, each
+motivated by a specific failure of the standard formulation on this dataset.
+(A fifth item below, built-in TSTR validation, is an EVALUATION step rather than
+an architectural contribution, and is listed separately for that reason.)
 
 An earlier MLP-based version produced amplitude-correct but temporally
 incoherent windows: the autocorrelation function of generated windows was
 essentially white noise (ACF(1) ~ 0.1) while real anomaly windows have strong
 temporal correlation (ACF(1) ~ 0.65-0.75). For the Phase 4 protocol temporal
 fidelity is essential — the LSTM models temporal dynamics and fails
-catastrophically on temporally incoherent training data. Five changes fix it:
+catastrophically on temporally incoherent training data.
+
+Caveat stated up front: the four contributions were adopted together and
+motivated qualitatively. Their individual marginal effect was NOT isolated in a
+controlled ablation against a plain conditional WGAN-GP, and no nearest-neighbour
+test was run to rule out memorisation of training windows. Both are identified as
+the natural next refinements of this evaluation.
 
   1. 1D CONVOLUTIONAL ARCHITECTURE
      Transposed-convolution generator + convolution critic instead of an MLP.
@@ -72,10 +85,20 @@ catastrophically on temporally incoherent training data. Five changes fix it:
      mode averaging. Two specialised generators each see their own class and
      produce sharper, more class-specific output.
 
-  5. BUILT-IN TSTR VALIDATION
+PLUS, as an evaluation step rather than an architectural contribution:
+
+     BUILT-IN TSTR VALIDATION
      "Train on Synthetic, Test on Real" — a quick SVM trained on synthetic
      windows and evaluated on real test windows, giving immediate signal on
      whether the output is useful downstream.
+
+================================================================================
+TRAINING POOL (after the 20 held-out channels are excluded)
+================================================================================
+
+  point generator      2000 real point-anomaly windows
+  contextual generator  792 real contextual-anomaly windows
+  parameters            generator 184,865   critic 42,337   (per class)
 
 ================================================================================
 MEASURED RESULTS (this run — see results/gan_v4_clean_quality_report.csv)
@@ -85,11 +108,24 @@ MEASURED RESULTS (this run — see results/gan_v4_clean_quality_report.csv)
   MMD                contextual 0.085   point 0.175
   ACF mean |delta|   contextual 0.026   point 0.015    (target was < 0.05)
 
-  TSTR SVM F1        point 0.450   contextual 0.326   overall 0.405
+CAREFUL — two different numbers are both called "TSTR", and they are NOT the
+same quantity:
 
-Note on the TSTR table: it is a generator-quality PREVIEW computed across all
-81 channels, not the thesis result. The authoritative synthetic-to-real numbers
-are Phase 4's, restricted to the 20 held-out channels.
+  * IN-SAMPLE PREVIEW (what THIS script's gan_v4_clean_tstr_results.csv holds):
+    computed across all 81 channels, including the 20 held out.
+        point 0.450   contextual 0.326   overall 0.405
+    Excluding the held-out channels from GAN training moved this preview only
+    marginally, from 0.411 to 0.405, which is evidence the held-out exclusion
+    did not degrade the generator.
+
+  * THE THESIS RESULT (held-out transfer, Phase 4, on the 20 unseen channels):
+        overall 0.474   point 0.57   contextual 0.24
+    This is the authoritative synthetic-to-real number and it comes from
+    phase4_synthetic_training.py, not from here.
+
+The distributional metrics above are likewise IN-SAMPLE fidelity checks: they
+compare the synthetic windows against the generator's own training windows, not
+against held-out anomalies.
 
 Honest caveat: point-class fidelity (Frechet 0.403) is clearly weaker than
 contextual (0.141) — synthetic point windows are slightly smoother than the

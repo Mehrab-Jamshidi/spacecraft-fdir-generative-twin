@@ -5,7 +5,9 @@ PHASE 4 — EXTENSIONS:  SVM AUGMENTATION GRID  (+ per-channel calibration code)
 ================================================================================
 Author:     Mehrab Jamshidi — Politecnico di Milano
 Supervisor: Prof. Andrea Colagrossi
-Thesis:     Generative Digital Twin Methods to Support FDIR Design and Testing
+Thesis:     Generative Digital Twin Methods for Spacecraft Telemetry Anomaly
+            Detection: Toward Data-Driven FDIR Design and Testing
+            MSc Aeronautical Engineering, Politecnico di Milano, AY 2025-26
 
 All results here are measured on the 20 HELD-OUT channels, whose anomalies the
 Phase 3 generator never saw. The 61/20 partition comes from holdout_split.py.

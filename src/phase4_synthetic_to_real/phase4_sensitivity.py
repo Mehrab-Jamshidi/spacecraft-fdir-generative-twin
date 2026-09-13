@@ -6,7 +6,9 @@ PHASE 4 — SENSITIVITY ANALYSIS, using the GAN as a CONTROLLABLE fault source
 ================================================================================
 Author:     Mehrab Jamshidi — Politecnico di Milano
 Supervisor: Prof. Andrea Colagrossi
-Thesis:     Generative Digital Twin Methods to Support FDIR Design and Testing
+Thesis:     Generative Digital Twin Methods for Spacecraft Telemetry Anomaly
+            Detection: Toward Data-Driven FDIR Design and Testing
+            MSc Aeronautical Engineering, Politecnico di Milano, AY 2025-26
 
 PURPOSE — WHY THIS IS THE CORE CONTRIBUTION
    Every other Phase 4 experiment is TSTR (train-on-synthetic, test-on-real):
@@ -52,8 +54,11 @@ PROTOCOL
      5. Aggregate the per-channel (alpha, d) cells across the held-out channels.
 
    The alpha = 0 row is a no-injection control: it measures the false-positive
-   rate of the k3 threshold on untouched nominal data (0.0106), which is what
-   makes the rest of the surface interpretable.
+   rate of the k3 threshold on untouched nominal data, which is what makes the
+   rest of the surface interpretable. The MEDIAN rate is low, 0.011; the MEAN is
+   0.123, inflated by two channels (D-5 and R-1) that flag their clean stream
+   almost in its entirety. Both are reported so the floor is not understated —
+   see the per-channel rates written to phase4sens_per_channel.csv.
 
 WHAT THE SURFACE SHOWS (results/phase4sens_aggregated.csv)
 

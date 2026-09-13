@@ -4,7 +4,9 @@ config.py — single source of truth for every path used in this repository
 ================================================================================
 Author:     Mehrab Jamshidi — Politecnico di Milano
 Supervisor: Prof. Andrea Colagrossi
-Thesis:     Generative Digital Twin Methods to Support FDIR Design and Testing
+Thesis:     Generative Digital Twin Methods for Spacecraft Telemetry Anomaly
+            Detection: Toward Data-Driven FDIR Design and Testing
+            MSc Aeronautical Engineering, Politecnico di Milano, AY 2025-26
 
 WHY THIS FILE EXISTS
 --------------------
