@@ -1,0 +1,9 @@
+# Python 3.12 (the version every reported result was produced on).
+# Install torch matching your CUDA build from https://pytorch.org if using a GPU;
+# the reference environment was torch 2.5.1+cu121 on an RTX 3050.
+numpy>=1.26
+pandas>=2.0
+scikit-learn>=1.3
+scipy>=1.11
+matplotlib>=3.7
+torch>=2.1

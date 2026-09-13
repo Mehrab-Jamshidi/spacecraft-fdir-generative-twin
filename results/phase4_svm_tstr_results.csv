@@ -1,0 +1,21 @@
+chan_id,spacecraft,anomaly_class,svm_p4_precision,svm_p4_recall,svm_p4_f1,note
+P-1,SMAP,"[contextual, contextual, contextual]",0.4286,0.1053,0.169,ok
+E-8,SMAP,[point],0.1321,0.6667,0.2205,ok
+E-10,SMAP,"[contextual, contextual]",1.0,0.4815,0.65,ok
+P-2,SMAP,[point],0.2299,0.9625,0.3711,ok
+D-4,SMAP,[point],1.0,1.0,1.0,ok
+G-1,SMAP,[contextual],0.0229,1.0,0.0447,ok
+G-2,SMAP,[point],1.0,0.8,0.8889,ok
+D-5,SMAP,[point],1.0,0.1667,0.2857,ok
+G-3,SMAP,[point],0.5,0.5714,0.5333,ok
+T-2,SMAP,[point],0.0,0.0,0.0,ok
+D-9,SMAP,[point],1.0,0.8169,0.8992,ok
+G-4,SMAP,[point],1.0,0.8,0.8889,ok
+B-1,SMAP,[point],0.0378,0.875,0.0725,ok
+R-1,SMAP,[point],1.0,0.5,0.6667,ok
+A-8,SMAP,[contextual],0.9592,0.395,0.5595,ok
+F-3,SMAP,[contextual],0.0,0.0,0.0,ok
+M-2,MSL,[contextual],1.0,0.0137,0.027,ok
+T-5,MSL,[point],1.0,1.0,1.0,ok
+C-1,MSL,"[point, contextual]",0.4,0.1538,0.2222,ok
+D-14,MSL,"[point, point]",1.0,0.95,0.9744,ok

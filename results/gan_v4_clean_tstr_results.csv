@@ -1,0 +1,82 @@
+chan_id,spacecraft,anomaly_class,tstr_precision,tstr_recall,tstr_f1,note
+P-1,SMAP,"[contextual, contextual, contextual]",0.4615,0.1053,0.1714,ok
+S-1,SMAP,[point],1.0,0.6452,0.7843,ok
+E-1,SMAP,"[contextual, contextual]",1.0,0.4054,0.5769,ok
+E-2,SMAP,[point],0.0965,0.4,0.1555,ok
+E-3,SMAP,[point],1.0,0.1692,0.2894,ok
+E-4,SMAP,[point],0.1648,0.3371,0.2214,ok
+E-5,SMAP,[point],0.0299,0.5652,0.0568,ok
+E-6,SMAP,[point],0.6667,0.5714,0.6154,ok
+E-7,SMAP,[point],0.0,0.0,0.0,ok
+E-8,SMAP,[point],0.1152,0.6667,0.1965,ok
+E-9,SMAP,[point],0.0221,0.16,0.0388,ok
+E-10,SMAP,"[contextual, contextual]",1.0,0.4815,0.65,ok
+E-11,SMAP,"[contextual, contextual]",1.0,0.52,0.6842,ok
+E-12,SMAP,"[contextual, contextual]",1.0,0.0233,0.0455,ok
+E-13,SMAP,"[contextual, contextual, contextual]",0.0,0.0,0.0,ok
+A-1,SMAP,[point],1.0,0.5,0.6667,ok
+D-1,SMAP,[point],0.6042,1.0,0.7532,ok
+P-2,SMAP,[point],0.192,0.9625,0.3202,ok
+P-3,SMAP,[point],0.1619,0.977,0.2778,ok
+D-2,SMAP,[point],1.0,0.9026,0.9488,ok
+D-3,SMAP,[point],0.9713,0.976,0.9736,ok
+D-4,SMAP,[point],1.0,1.0,1.0,ok
+A-2,SMAP,[contextual],0.1739,0.4,0.2424,ok
+A-3,SMAP,[contextual],0.2368,0.6,0.3396,ok
+A-4,SMAP,[contextual],0.0566,0.3,0.0952,ok
+G-1,SMAP,[contextual],0.0219,1.0,0.0428,ok
+G-2,SMAP,[point],1.0,0.8,0.8889,ok
+D-5,SMAP,[point],0.0043,0.3333,0.0084,ok
+D-6,SMAP,[point],0.5,0.5,0.5,ok
+D-7,SMAP,[point],1.0,0.5595,0.7176,ok
+F-1,SMAP,[point],1.0,0.4444,0.6154,ok
+P-4,SMAP,"[point, point, point]",1.0,0.5263,0.6897,ok
+G-3,SMAP,[point],0.5,0.5714,0.5333,ok
+T-1,SMAP,"[point, contextual]",0.0,0.0,0.0,ok
+T-2,SMAP,[point],0.0,0.0,0.0,ok
+D-8,SMAP,[point],1.0,0.6667,0.8,ok
+D-9,SMAP,[point],1.0,0.8169,0.8992,ok
+F-2,SMAP,[point],0.5161,0.5189,0.5175,ok
+G-4,SMAP,[point],1.0,0.6,0.75,ok
+T-3,SMAP,"[point, point]",0.6667,0.4706,0.5517,ok
+D-11,SMAP,[point],1.0,0.5714,0.7273,ok
+D-12,SMAP,[point],1.0,0.5824,0.7361,ok
+B-1,SMAP,[point],0.0378,0.875,0.0725,ok
+G-6,SMAP,[point],1.0,0.4444,0.6154,ok
+G-7,SMAP,"[contextual, point, contextual]",1.0,0.7692,0.8696,ok
+P-7,SMAP,[contextual],0.3383,0.8411,0.4826,ok
+R-1,SMAP,[point],1.0,0.5,0.6667,ok
+A-5,SMAP,[point],0.0139,0.6667,0.0272,ok
+A-6,SMAP,[point],0.0218,1.0,0.0427,ok
+A-7,SMAP,[contextual],0.98,0.9671,0.9735,ok
+D-13,SMAP,[point],0.0692,0.8462,0.1279,ok
+A-8,SMAP,[contextual],0.9126,0.395,0.5513,ok
+A-9,SMAP,[contextual],0.5084,0.9959,0.6732,ok
+F-3,SMAP,[contextual],0.0,0.0,0.0,ok
+M-6,MSL,[point],0.1846,1.0,0.3117,ok
+M-1,MSL,[contextual],0.0455,0.0137,0.0211,ok
+M-2,MSL,[contextual],1.0,0.0274,0.0533,ok
+S-2,MSL,[point],1.0,1.0,1.0,ok
+P-10,MSL,[point],0.0617,0.9091,0.1156,ok
+T-4,MSL,[point],1.0,0.5,0.6667,ok
+T-5,MSL,[point],1.0,1.0,1.0,ok
+F-7,MSL,"[contextual, contextual, contextual]",0.4167,0.1429,0.2128,ok
+M-3,MSL,[contextual],0.5,0.2632,0.3448,ok
+M-4,MSL,[contextual],0.4074,0.5789,0.4783,ok
+M-5,MSL,[contextual],0.8333,0.6818,0.75,ok
+P-15,MSL,[point],0.027,1.0,0.0526,ok
+C-1,MSL,"[point, contextual]",0.4,0.1538,0.2222,ok
+C-2,MSL,"[point, contextual]",0.1351,1.0,0.2381,ok
+T-12,MSL,[contextual],0.3478,0.7273,0.4706,ok
+T-13,MSL,"[contextual, contextual]",0.5,0.0476,0.087,ok
+F-4,MSL,[point],0.0345,0.1429,0.0556,ok
+F-5,MSL,[point],0.1111,0.0833,0.0952,ok
+D-14,MSL,"[point, point]",1.0,0.95,0.9744,ok
+T-9,MSL,"[point, point]",0.2,1.0,0.3333,ok
+P-14,MSL,[point],0.037,1.0,0.0714,ok
+T-8,MSL,"[contextual, contextual]",0.0,0.0,0.0,ok
+P-11,MSL,"[point, point]",0.12,0.1429,0.1304,ok
+D-15,MSL,[point],0.0,0.0,0.0,ok
+D-16,MSL,[contextual],0.4177,0.75,0.5366,ok
+M-7,MSL,[point],1.0,0.2222,0.3636,ok
+F-8,MSL,[contextual],0.0,0.0,0.0,ok

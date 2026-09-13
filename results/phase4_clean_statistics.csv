@@ -1,0 +1,5 @@
+comparison,synthetic_mean,real_mean,wilcoxon_p
+SVM synthetic vs real (substitution),0.4737,0.631,0.1337
+LSTM k3 synthetic vs LSTM k3 real,0.5435,0.5469,0.7007
+LSTM synthMedian vs k3 (artefact check),0.5952,0.5435,0.6874
+VAE best synthetic rule (synthRecall) vs k3,0.3496,0.3969,0.286

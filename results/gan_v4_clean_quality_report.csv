@@ -1,0 +1,19 @@
+metric,class,value
+Frechet Distance,point,0.40309158541138235
+Frechet Distance,contextual,0.14053050636378073
+MMD,point,0.17481940984725952
+MMD,contextual,0.08521056175231934
+ACF Mean |Δ|,point,0.01476384043314265
+ACF Mean |Δ|,contextual,0.026425216667811374
+KS_mean,point,0.19
+KS_mean,contextual,0.07372727272727272
+KS_std,point,0.4705
+KS_std,contextual,0.3643989898989899
+KS_min,point,0.19
+KS_min,contextual,0.4833686868686869
+KS_max,point,0.259
+KS_max,contextual,0.20263636363636364
+KS_range,point,0.4705
+KS_range,contextual,0.375050505050505
+KS_autocorr,point,0.5295
+KS_autocorr,contextual,0.3728080808080808
