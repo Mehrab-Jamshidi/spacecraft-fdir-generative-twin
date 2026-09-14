@@ -323,6 +323,16 @@ author's own, and all reported numbers were verified against the underlying data
 }
 ```
 
+## Contact
+
+**Mehrab Jamshidi** — MSc Aeronautical Engineering, Politecnico di Milano (2026)
+[mehrab.jamshidi@mail.polimi.it](mailto:mehrab.jamshidi@mail.polimi.it) ·
+[LinkedIn](https://www.linkedin.com/in/mehrab-jamshidi-861a71258/)
+
+Questions about the method, the evaluation protocol, or reproducing the results are welcome.
+I am currently looking for doctoral and research positions in data-driven fault detection,
+condition monitoring, and learning for safety-critical systems.
+
 ## License
 
 Released under the [MIT License](LICENSE). The NASA SMAP/MSL dataset is the property of its
