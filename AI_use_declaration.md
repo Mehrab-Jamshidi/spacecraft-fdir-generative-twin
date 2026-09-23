@@ -36,3 +36,10 @@ the entire content of this thesis, and I take full responsibility for its scient
 and for any errors it may contain.
 
 — Mehrab Jamshidi
+
+---
+
+**Journal-article code (`paper/`).** The same tools were used in the same way for the code
+in `paper/`: to support writing, programming and analysis, with every reported number
+verified against the underlying result files, which the scripted audit in
+`paper/analysis/wp12_claims_audit.py` recomputes. The article carries its own declaration.

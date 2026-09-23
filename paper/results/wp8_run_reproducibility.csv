@@ -1,0 +1,46 @@
+run,f1_target,duration,alpha,status,printed
+C (canonical),0.5,16,,right_censored,>1.50
+C (canonical),0.5,32,1.2806045529926124,ok,1.281
+C (canonical),0.5,64,0.3327016783974013,ok,0.333
+C (canonical),0.5,128,0.1,left_censored,<=0.10
+C (canonical),0.5,256,0.1,left_censored,<=0.10
+C (canonical),0.7,16,,right_censored,>1.50
+C (canonical),0.7,32,,right_censored,>1.50
+C (canonical),0.7,64,,right_censored,>1.50
+C (canonical),0.7,128,1.1808263347330532,ok,1.181
+C (canonical),0.7,256,0.22451965065502166,ok,0.225
+C (canonical),0.8,16,,right_censored,>1.50
+C (canonical),0.8,32,,right_censored,>1.50
+C (canonical),0.8,64,,right_censored,>1.50
+C (canonical),0.8,128,,right_censored,>1.50
+C (canonical),0.8,256,1.3395733807354748,ok,1.340
+B (wp3 re-run),0.5,16,,right_censored,>1.50
+B (wp3 re-run),0.5,32,0.7959556467119602,ok,0.796
+B (wp3 re-run),0.5,64,0.11535380997869057,ok,0.115
+B (wp3 re-run),0.5,128,0.1,left_censored,<=0.10
+B (wp3 re-run),0.5,256,0.1,left_censored,<=0.10
+B (wp3 re-run),0.7,16,,right_censored,>1.50
+B (wp3 re-run),0.7,32,,right_censored,>1.50
+B (wp3 re-run),0.7,64,,right_censored,>1.50
+B (wp3 re-run),0.7,128,0.7159207818930036,ok,0.716
+B (wp3 re-run),0.7,256,0.12590428730990624,ok,0.126
+B (wp3 re-run),0.8,16,,right_censored,>1.50
+B (wp3 re-run),0.8,32,,right_censored,>1.50
+B (wp3 re-run),0.8,64,,right_censored,>1.50
+B (wp3 re-run),0.8,128,,right_censored,>1.50
+B (wp3 re-run),0.8,256,0.9418212478920748,ok,0.942
+A (thesis),0.5,16,,right_censored,>1.50
+A (thesis),0.5,32,1.0471935938310968,ok,1.047
+A (thesis),0.5,64,0.17225942897426855,ok,0.172
+A (thesis),0.5,128,0.1,left_censored,<=0.10
+A (thesis),0.5,256,0.1,left_censored,<=0.10
+A (thesis),0.7,16,,right_censored,>1.50
+A (thesis),0.7,32,,right_censored,>1.50
+A (thesis),0.7,64,,right_censored,>1.50
+A (thesis),0.7,128,0.8843703703703693,ok,0.884
+A (thesis),0.7,256,0.11873571972581859,ok,0.119
+A (thesis),0.8,16,,right_censored,>1.50
+A (thesis),0.8,32,,right_censored,>1.50
+A (thesis),0.8,64,,right_censored,>1.50
+A (thesis),0.8,128,,right_censored,>1.50
+A (thesis),0.8,256,0.9437095825984717,ok,0.944

@@ -11,7 +11,15 @@ telemetry benchmark — under a **leak-free, channel-level held-out protocol**.
 > Politecnico di Milano, Department of Aerospace Science and Technology, Academic Year 2025–26.
 >
 > 📄 Full thesis: [`docs/Mehrab_Jamshidi_thesis.pdf`](docs/Mehrab_Jamshidi_thesis.pdf) ·
+> 📄 Defence slides: [`docs/Mehrab_Jamshidi_thesis_defence_slides.pdf`](docs/Mehrab_Jamshidi_thesis_defence_slides.pdf) ·
 > 📄 One-page summary: [`docs/Mehrab_Jamshidi_Thesis_OnePager.pdf`](docs/Mehrab_Jamshidi_Thesis_OnePager.pdf)
+
+> **Follow-up journal article.** The thesis's controllable-fault sensitivity analysis is
+> developed into a journal article, *Detectability of learned spacecraft anomaly
+> detectors: minimum-detectable-fault envelopes by controlled fault injection*
+> (M. Jamshidi, A. Colagrossi; in preparation). Its code, campaign outputs and a scripted
+> audit of every number it quotes are in [`paper/`](paper/). The article corrects several
+> statements made in the thesis — see [Corrections since the thesis](#corrections-since-the-thesis).
 
 ---
 
@@ -57,7 +65,7 @@ anomaly sequence — so the channel is the only clean unit. The reasoning is wri
 | **GAN fidelity** | TSTR **0.474** on held-out (0.57 point / 0.24 contextual); Fréchet — contextual 0.141, point 0.403; ACF \|Δ\| — contextual 0.026, point 0.015 |
 | **Data-efficiency** | flat (0.474 → 0.465) — cross-channel real labels do not transfer; equivalent-windows claim withdrawn |
 | **Augmentation** | synthetic *substitutes for* cross-channel real (both ≈ 0.47) but does *not* augment it |
-| **Sensitivity (the design contribution)** | F1 surface **0.255 → 0.845** over fault severity α × duration d; latency < 1 → ~30 steps; **duration dominates severity** |
+| **Sensitivity (the design contribution)** | F1 surface **0.255 → 0.845** over fault severity α × duration d; latency < 1 → ~30 steps; duration appears to dominate severity — *largely a scoring artefact, see [Corrections](#corrections-since-the-thesis)* |
 | **Showcase channel P-1** (contextual, unseen) | classical 0.011 → nominal-trained k3 LSTM **0.718** (real-data best 0.814) |
 
 Every comparison against real data is tested with a paired Wilcoxon signed-rank test (n = 20).
@@ -75,9 +83,11 @@ you: *how big must a fault be, and how long must it last, before the detector ca
 how quickly?* Detection quality rises monotonically in both parameters, from F1 = 0.255 in the
 faint/short corner to 0.845 in the large/long corner.
 
-The practical lesson is that **duration dominates severity**. Sweeping duration at fixed
-α = 0.1 moves F1 by 0.44; sweeping severity at fixed d = 16 moves it by only 0.19. A long faint
-fault is far more detectable than a short loud one. The α = 0 control row measures the
+The thesis read this surface as showing that **duration dominates severity**: sweeping
+duration at fixed α = 0.1 moves F1 by 0.44, sweeping severity at fixed d = 16 only by 0.19.
+The follow-up article shows that most of that duration effect comes from the point-adjust
+scoring rather than from detection, and that the probability of flagging a fault within a
+deadline depends on severity alone ([Corrections](#corrections-since-the-thesis)). The α = 0 control row measures the
 false-positive rate of the k3 threshold on untouched nominal data — **median 0.011**, which is
 what makes the rest of the surface interpretable; the mean is far higher at 0.123, inflated by
 two channels (D-5, R-1) that flag their entire clean stream. Both are reported so the floor is
@@ -107,8 +117,12 @@ detector — no real fault labels required.
 ├── requirements.txt
 ├── AI_use_declaration.md
 ├── LICENSE
+├── paper/                                      # the follow-up journal article — see paper/README.md
+│   ├── analysis/                               # campaign, analyses, figures, claims audit
+│   └── results/                                # campaign outputs and every derived result
 ├── docs/
 │   ├── Mehrab_Jamshidi_thesis.pdf              # the full thesis
+│   ├── Mehrab_Jamshidi_thesis_defence_slides.pdf  # defence presentation
 │   ├── Mehrab_Jamshidi_Thesis_OnePager.pdf     # one-page summary
 │   ├── CleanReRun_Report_Revised_FINAL.pdf     # the corrective report in full
 │   └── CLEAN_RERUN_PROTOCOL.md                 # protocol design notes
@@ -223,8 +237,11 @@ python src/phase4_synthetic_to_real/phase4_extensions.py
 python src/phase4_synthetic_to_real/phase4_sensitivity.py
 ```
 
-Full run ≈ 90 min on a single RTX 3050; the GAN is the only long, GPU-heavy step. Because every
-model is seeded, the F1 and latency surfaces reproduce to four decimals.
+Full run ≈ 90 min on a single RTX 3050; the GAN is the only long, GPU-heavy step. Every model
+is seeded, but the Phase-4 detectors are trained on the GPU without deterministic kernels, so a
+re-run reproduces the **aggregate** F1 surface closely (within 0.05 at every cell in a full
+re-execution) but not individual channel-cells, which moved by up to 0.70. The journal
+article's campaign in [`paper/`](paper/) uses deterministic kernels and re-executes bit for bit.
 
 ---
 
@@ -237,10 +254,10 @@ model is seeded, the F1 and latency surfaces reproduce to four decimals.
   drives the estimation error to ~14 deg/s while the running-variance monitor never trips.
 - **Phase 2 — unsupervised detectors.** A VAE (reconstruction error, 0.590 mean / 0.638
   contextual at the oracle threshold) and an LSTM (one-step-ahead prediction error, 0.743 mean
-  / **0.836 contextual**), both trained on nominal data only. The LSTM reproduces the Hundman
-  et al. (2018) SMAP benchmark to within **0.006** (0.746 vs 0.752), which independently
-  validates the whole pipeline. These are the detectors whose thresholds Phase 4 tries to set
-  with synthetic data.
+  / **0.836 contextual**), both trained on nominal data only. The thesis stated that the LSTM
+  reproduces the Hundman et al. (2018) SMAP benchmark to within 0.006; that comparison was not
+  like-for-like and is corrected [below](#corrections-since-the-thesis). These are the
+  detectors whose thresholds Phase 4 tries to set with synthetic data.
 - **Phase 3 — clean generator.** A class-conditional WGAN-GP trained **only** on anomaly
   windows from the 61 training channels, with four architectural contributions over a standard
   conditional WGAN-GP: a 1-D convolutional generator and critic, an explicit
@@ -277,11 +294,17 @@ model is seeded, the F1 and latency surfaces reproduce to four decimals.
   disclosed and does not undermine downstream detection (the amplitude-sensitive SVM reaches
   0.651 on point channels in Phase 2).
 - The four architectural contributions were adopted together and motivated qualitatively; their
-  individual marginal effect was **not** isolated in a controlled ablation, and no
-  nearest-neighbour memorisation check was run.
+  individual marginal effect was **not** isolated in a controlled ablation. The thesis ran no
+  nearest-neighbour memorisation check; one was added for the journal article
+  ([`paper/analysis/wp3_memorisation.py`](paper/analysis/wp3_memorisation.py)) and finds none:
+  synthetic windows lie 1.24× (point) and 4.24× (contextual) further from the nearest training
+  window than genuinely unseen real windows do.
 - The sensitivity surface characterises detectability of **generator-produced** faults
-  parameterised by the injection model, not of arbitrary physical faults; extrapolating it to
-  real graded faults rests on the generator's realism and is not yet validated.
+  parameterised by the injection model, not of arbitrary physical faults. The thesis left its
+  transfer to real faults unvalidated; the journal article tests it against the 25 real
+  anomalies of the held-out channels, scored by the same trained detector, and finds that it
+  transfers only when a real fault's severity is measured in the quantity the detector
+  responds to ([`paper/`](paper/)).
 - "Oracle" appears in two distinct senses: the **within-run** oracle (best threshold for the
   Phase-4 detector, bounding the threshold-rule study) and the **real-data** oracle (best
   real-trained detector, shown for reference). They are labelled separately wherever they appear.
@@ -300,6 +323,23 @@ model is seeded, the F1 and latency surfaces reproduce to four decimals.
   as-is here so the code reproduces the committed tables and figures exactly; no headline
   result, significance test, or other figure depends on it. The comment in `build_master()` in
   `phase4_synthetic_training.py` explains how to switch it to the clean table.
+
+---
+
+## Corrections since the thesis
+
+The journal article in [`paper/`](paper/) re-examined the Phase-4 results with a deterministic
+re-execution, the same trained detector for prediction and observation, and additional
+controls. The following statements, made in the thesis and repeated in the summary and
+slides in `docs/`, do not hold as stated there. The thesis documents are left unchanged.
+
+| thesis statement | corrected account |
+|---|---|
+| **Fault duration dominates severity** for detectability. | Mostly a scoring effect. Under point-adjust, one flagged step credits a whole fault segment, and false alarms that happen to fall inside a long fault count as detections: at α = 0.10 the chance that a fault is flagged anywhere inside it rises by 0.25 from d = 16 to d = 256, about the same as the chance that a nominal window of that length holds a false alarm. Re-scored point-wise, about half of the duration effect disappears while the severity effect remains, and the probability of flagging a fault within a fixed deadline does not depend on duration at all. |
+| The **latency surface** shows detection slowing with duration. | Mean latency averages only the faults that were flagged and cannot exceed the fault's duration, so it rises with duration whatever the detector does. The article uses the probability of detection within a deadline instead. |
+| The LSTM **reproduces Hundman et al. (2018) to within 0.006** (0.746 vs 0.752). | Not like-for-like: Hundman et al. report F0.5 at corpus level with a dynamic threshold (0.71 SMAP, 0.69 MSL), whereas 0.746 is a mean of per-channel F1 at the best (oracle) threshold per channel. Under the deployable k = 3 rule this implementation gives F1 0.637 (SMAP) and 0.709 (MSL), F0.5 0.595 and 0.662 — agreement in kind only. |
+| The generator's decisive value is as the **controllable fault source** for the sensitivity sheet. | The sheet depends on which fault model is injected, and a generator trained on the real fault record is not a better stimulus than a simple step or spike train for predicting real-fault detection. It under-produces the saturated excursion that makes up 47 % of real point-fault windows. |
+| The surfaces **reproduce to four decimals** (this README, before this update). | See *Reproducing the results* above: the aggregate surface reproduces closely, single channel-cells do not. |
 
 ---
 

@@ -10,6 +10,10 @@ env/
 # The NASA SMAP/MSL dataset is NOT redistributed here — see data/README.md
 data/raw/
 
+# Journal-article pipeline: regenerated on every run, not committed
+paper/figures/
+paper/results/pipeline_logs/
+
 # MATLAB / Simulink build artefacts
 slprj/
 *.slxc
