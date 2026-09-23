@@ -78,7 +78,7 @@ verified. Figures are written to `paper/figures/` (not committed; they are regen
 | `wp7_analyse_parametric.py`, `wp7_parametric_robustness.py` | which fault model predicts real-fault detection; calibration confound; AR-order stability |
 | `wp11_uncertainty_checks.py` | paired bootstrap of the fault-model differences; admissible subset |
 | `wp3_memorisation.py` | nearest-neighbour memorisation test and saturation statistics of the generator |
-| `wp4_figures.py`, `fig_schematic.py`, `fig_graphical_abstract.py` | the article's figures |
+| `wp4_figures.py`, `fig_schematic.py`, `fig_graphical_abstract.py` | the article's figures; each is checked by `fig_qa.py` for overlapping text and text outside its box before it is saved |
 | `wp12_claims_audit.py` | recomputes every number the article quotes from the files in `results/` |
 
 Supporting modules: `_paths.py` (locates the thesis repository and the dataset),

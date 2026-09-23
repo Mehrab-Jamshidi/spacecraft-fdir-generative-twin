@@ -59,10 +59,18 @@ mpl.rcParams.update({
     "text.color": INK, "xtick.color": MUTED, "ytick.color": MUTED,
     "axes.grid": True, "grid.color": GRID, "grid.linewidth": 0.5, "grid.alpha": 0.8,
     "axes.axisbelow": True, "legend.frameon": False, "pdf.fonttype": 42,
+    # math in the same serif as the text, not matplotlib's default sans
+    "mathtext.fontset": "dejavuserif",
 })
+
+from fig_qa import check as _layout_check  # noqa: E402
+LAYOUT_PROBLEMS: dict[str, list[str]] = {}
 
 
 def save(fig, name):
+    probs = _layout_check(fig, name)
+    if probs:
+        LAYOUT_PROBLEMS[name] = probs
     fig.savefig(FIG / f"{name}.pdf")
     fig.savefig(FIG / f"{name}.png")
     plt.close(fig)
@@ -102,14 +110,10 @@ def fig_mdf_contour(contours: pd.DataFrame):
                            & contours.latency_budget.isna()]
             x, y, cens = _contour_xy(sub, col, stat)
             if len(x):
+                # Identified by the shared legend and by linestyle and marker; the
+                # contours converge at long durations, so direct labels collide.
                 ax.plot(x, y, ls, color=c, marker=mk, lw=1.6, ms=5,
                         label=f"$F_1 \\geq {t:.2f}$", zorder=3)
-                # Direct label at the LEFTMOST point: the contours converge on the
-                # right, so labelling the last point makes them collide.
-                ax.annotate(f"$F_1\\geq{t:.2f}$", (x[0], y[0]),
-                            textcoords="offset points",
-                            xytext=((6, 7) if len(x) > 1 else (-50, 9)),
-                            color=c, fontsize=7.5, weight="bold", zorder=4)
             # Requirement unreachable at any tested severity. Arrows are offset
             # horizontally per series, otherwise the three overplot and the
             # figure implies only one requirement is censored.
@@ -149,11 +153,11 @@ def fig_mdf_contour(contours: pd.DataFrame):
         ax.set_xlabel("fault duration $d$ (time steps)")
         ax.set_title(title, loc="left", color=INK, pad=6)
     axes[0].set_ylabel("minimum detectable severity $\\alpha^*$")
-    # One shared legend below both panels: an in-axes legend collides with the
-    # direct labels, and identity must not rest on hue alone.
+    # One shared legend below both panels, clear of the axis labels. Handles are
+    # taken from the mean panel, where all three requirements have a line.
     handles, labels = axes[0].get_legend_handles_labels()
-    fig.legend(handles, labels, loc="lower center", ncol=3,
-               bbox_to_anchor=(0.5, -0.09))
+    fig.legend(handles, labels, loc="upper center", ncol=3,
+               bbox_to_anchor=(0.5, 0.0), handlelength=3)
     save(fig, "fig_mdf_contour")
 
 
@@ -185,7 +189,8 @@ def fig_mdf_by_class(contours: pd.DataFrame):
     ax.set_ylabel("minimum detectable severity $\\alpha^*$")
     ax.set_title("MDF contour at $F_1 \\geq 0.70$, by fault class",
                  loc="left", color=INK)
-    ax.legend(loc="upper right")
+    # below the grey band and to the right of the data, clear of every arrow
+    ax.legend(loc="center right", bbox_to_anchor=(1.0, 0.44))
     save(fig, "fig_mdf_by_class")
 
 
@@ -230,7 +235,10 @@ def fig_surface(boot: pd.DataFrame):
     ax2.set_ylim(0, 1.0)
     ax2.set_title("(b) severity cross-sections, 95% bootstrap CI",
                   loc="left", color=INK)
-    ax2.legend(ncol=2, loc="lower right")
+    # below the figure, centred: inside the axes it covers the d = 16 curve
+    h, lab = ax2.get_legend_handles_labels()
+    fig.legend(h, lab, ncol=5, loc="upper center", bbox_to_anchor=(0.5, 0.0),
+               handlelength=2.4, columnspacing=1.2)
     save(fig, "fig_surface")
 
 
@@ -299,13 +307,17 @@ def fig_predictive_validity(cmp_: pd.DataFrame):
         axes[0].annotate("G-1", (r.observed_f1, r.predicted_f1_dist),
                          textcoords="offset points", xytext=(8, -2),
                          fontsize=8, color=ORANGE, weight="bold")
+        # In (b) G-1 sits at the origin among other low points: label it in the
+        # empty space to the right, with a leader line.
         axes[1].annotate("G-1", (r.observed_f1, r.predicted_f1_ar),
-                         textcoords="offset points", xytext=(8, 4),
-                         fontsize=8, color=ORANGE, weight="bold")
+                         textcoords="offset points", xytext=(26, 2),
+                         fontsize=8, color=ORANGE, weight="bold", va="center",
+                         arrowprops=dict(arrowstyle="-", color=ORANGE, lw=0.8,
+                                         shrinkA=1, shrinkB=4))
     axes[0].set_ylabel("$F_1$ predicted by the envelope")
     handles, labels = axes[0].get_legend_handles_labels()
-    fig.legend(handles, labels, loc="lower center", ncol=2,
-               bbox_to_anchor=(0.5, -0.07))
+    fig.legend(handles, labels, loc="upper center", ncol=2,
+               bbox_to_anchor=(0.5, 0.0))
     save(fig, "fig_predictive_validity")
 
 
@@ -373,8 +385,8 @@ def fig_detector_comparison(ext: pd.DataFrame):
     ax2.set_title("(b) severity response at $d = 256$", loc="left", color=INK)
 
     handles, labels = axes[0].get_legend_handles_labels()
-    fig.legend(handles, labels, loc="lower center", ncol=2,
-               bbox_to_anchor=(0.5, -0.09))
+    fig.legend(handles, labels, loc="upper center", ncol=2,
+               bbox_to_anchor=(0.5, 0.0), handlelength=3)
     save(fig, "fig_detector_comparison")
 
 
@@ -422,7 +434,8 @@ def fig_fault_models(par: pd.DataFrame, gen: pd.DataFrame, cmp_: pd.DataFrame):
     specs = [("noise", "-", "v"), ("spike", "--", "^"),
              ("step", "-.", "s"), ("ramp", (0, (1, 1.6)), "D")]
 
-    fig, axes = plt.subplots(1, 2, figsize=(7.2, 3.2))
+    fig, axes = plt.subplots(1, 2, figsize=(7.2, 3.2),
+                             gridspec_kw=dict(width_ratios=[1.2, 1], wspace=0.42))
 
     ax = axes[0]
     gp = gen.groupby(["alpha", "duration"]).f1_pa.mean().unstack()
@@ -446,12 +459,10 @@ def fig_fault_models(par: pd.DataFrame, gen: pd.DataFrame, cmp_: pd.DataFrame):
         if xs:
             # linestyle as a keyword: one of these is a dash tuple, which
             # matplotlib cannot parse as a positional format string.
+            # identified by the legend: the five contours converge from d = 64 on,
+            # so direct labels would collide with each other and with the curves
             ax.plot(xs, ys, linestyle=ls, color=c, marker=mk, lw=lw, ms=4.5,
                     label=name, zorder=4 if name.startswith("learned") else 3)
-            ax.annotate(name, (xs[0], ys[0]), textcoords="offset points",
-                        xytext=((8, -13) if name.startswith("learned") else (5, 6)),
-                        fontsize=6.8, color=c,
-                        weight="bold" if name.startswith("learned") else "normal")
         off = 2.0 ** ((k - 2) * 0.1)
         for d in cens:
             ax.annotate("", xy=(d * off, 2.2), xytext=(d * off, 1.54),
@@ -467,6 +478,9 @@ def fig_fault_models(par: pd.DataFrame, gen: pd.DataFrame, cmp_: pd.DataFrame):
     ax.set_xlabel("fault duration $d$ (time steps)")
     ax.set_ylabel("minimum detectable severity $\\alpha^*$")
     ax.set_title("(a) MDF contour at $F_1 \\geq 0.50$", loc="left", color=INK)
+    # in the grey band, right of the only arrows (all at d = 16) and below its label
+    ax.legend(loc="upper right", bbox_to_anchor=(1.0, 0.9), ncol=2, fontsize=7,
+              handlelength=2.6, columnspacing=0.9, borderaxespad=0.3)
 
     ax2 = axes[1]
     # Robustness run: all five models computed in one loop off one RNG stream.
@@ -492,15 +506,17 @@ def fig_fault_models(par: pd.DataFrame, gen: pd.DataFrame, cmp_: pd.DataFrame):
     ax2.errorbar(vals, y, xerr=[lo, hi], fmt="none", ecolor=INK, elinewidth=0.9,
                  capsize=2.5, zorder=4)
     for yi, v, h in zip(y, vals, hi):
-        ax2.text(min(v + h + 0.03, 1.02), yi, f"{v:+.2f}", va="center", fontsize=7.5,
-                 color=INK)
+        # value label just past the upper whisker, clear of its cap
+        ax2.text(v + h + 0.06, yi, f"{v:+.2f}", va="center", fontsize=7.5, color=INK)
     ax2.set_yticks(y, [labels.get(m, m) for m in order])
-    ax2.set_xlim(-0.3, 1.2)
-    ax2.set_xlabel("rank agreement $\\rho$ with observed\ndetection of the REAL faults")
+    ax2.set_xlim(-0.3, 1.32)
+    ax2.set_xticks([0, 0.5, 1.0])
+    ax2.set_xticks([-0.25, 0.25, 0.75], minor=True)
+    ax2.axvline(0, color=INK, lw=0.6, zorder=2)
+    ax2.set_xlabel("rank agreement $\\rho$ with observed\ndetection of the real faults")
     ax2.set_title("(b) which stimulus predicts real faults", loc="left", color=INK)
     ax2.grid(axis="y", visible=False)
 
-    fig.tight_layout()
     save(fig, "fig_fault_models")
 
 
@@ -533,7 +549,7 @@ def fig_axes_protocol(dec: pd.DataFrame, prot: pd.DataFrame):
     ax.set_ylabel("change across the sweep")
     ax.set_ylim(0, 0.95)
     ax.set_title("(a) precision and recall components", loc="left", color=INK)
-    ax.legend(loc="upper center", bbox_to_anchor=(0.5, -0.33), ncol=2)
+    ax.legend(loc="upper center", bbox_to_anchor=(0.5, -0.27), ncol=2)
 
     ax = axes[1]
     dets = ["lstm", "vae"]
@@ -544,14 +560,19 @@ def fig_axes_protocol(dec: pd.DataFrame, prot: pd.DataFrame):
     ax.bar(xx - w / 2, dr, w, color=BLUE, label="duration axis", zorder=3)
     ax.bar(xx + w / 2, sr, w, color=ORANGE, hatch="///", edgecolor="white",
            linewidth=0.6, label="severity axis", zorder=3)
+    ax.axhline(100, color=MUTED, lw=0.9, ls=(0, (4, 3)), zorder=2)
     for xi, v in list(zip(xx - w / 2, dr)) + list(zip(xx + w / 2, sr)):
-        ax.text(xi, v + 3, f"{v:.0f}%", ha="center", fontsize=7.5, color=INK)
-    ax.axhline(100, color=MUTED, lw=0.9, ls=(0, (4, 3)))
+        # a white backing keeps a label legible where it meets the 100 % line
+        ax.text(xi, v + 2.5, f"{v:.0f}%", ha="center", va="bottom", fontsize=7.5,
+                color=INK, zorder=5,
+                bbox=dict(facecolor="white", edgecolor="none", pad=0.8))
     ax.set_xticks(xx, ["LSTM", "VAE"])
     ax.set_ylabel("effect retained point-wise (%)")
-    ax.set_ylim(0, 125)
+    ax.set_ylim(0, 138)
+    ax.set_yticks([0, 20, 40, 60, 80, 100])
     ax.set_title("(b) re-scored point-wise", loc="left", color=INK)
-    ax.legend(loc="upper center", bbox_to_anchor=(0.5, -0.20), ncol=1)
+    ax.legend(loc="upper center", ncol=2, fontsize=7, handlelength=1.6,
+              columnspacing=0.8, borderaxespad=0.2)
     save(fig, "fig_axes_protocol")
 
 

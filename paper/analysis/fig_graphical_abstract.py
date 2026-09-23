@@ -21,13 +21,16 @@ import pandas as pd
 mpl.use("Agg")
 HERE = Path(__file__).resolve().parent
 RES, FIG = HERE.parent / "results", HERE.parent / "figures"
+FIG.mkdir(parents=True, exist_ok=True)
 from _paths import DATA_ROOT as DATA  # noqa: E402
 BLUE, ORANGE, AQUA, INK, MUTED, GRID = "#2a78d6", "#eb6834", "#1baf7a", "#1a1a19", "#5c5c58", "#d8d8d4"
 DUR = [16, 32, 64, 128, 256]
 mpl.rcParams.update({"font.family": "serif", "font.serif": ["DejaVu Serif"], "font.size": 10,
                      "axes.edgecolor": MUTED, "axes.linewidth": 0.7, "text.color": INK,
                      "xtick.color": MUTED, "ytick.color": MUTED, "axes.labelcolor": INK,
-                     "pdf.fonttype": 42, "savefig.dpi": 300, "savefig.bbox": "tight"})
+                     "pdf.fonttype": 42, "savefig.dpi": 300, "savefig.bbox": "tight",
+                     "mathtext.fontset": "dejavuserif"})
+from fig_qa import check  # noqa: E402
 
 
 def val(s):
@@ -100,6 +103,8 @@ def main():
     ax.grid(color=GRID, lw=0.5)
     fig.text(0.5, -0.06, "20 held-out NASA SMAP/MSL channels  ·  validated against real faults "
              r"with the same trained detector ($\rho = 0.80$)", ha="center", fontsize=8.3, color=MUTED)
+    if check(fig, "graphical_abstract"):
+        raise SystemExit("graphical_abstract: layout problems, not written")
     fig.savefig(FIG / "graphical_abstract.pdf")
     fig.savefig(FIG / "graphical_abstract.png", dpi=300)
     print("wrote figures/graphical_abstract.pdf (+ .png)")
