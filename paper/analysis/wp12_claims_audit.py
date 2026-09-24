@@ -163,7 +163,11 @@ for req in ("050", "070", "080"):
         for d in DURS:
             v = f(N[f"mdf_f1_{req}_{s}"][str(d)])
             if np.isfinite(v):
-                reg(f"{v:.3f}", v, f"contour F1>={int(req)/100:.2f} {s} d={d}")
+                # Bootstrap bounds are printed to 2 d.p.: they move in the second
+                # decimal between resampling seeds (an independent re-bootstrap
+                # gave 1.455 for 1.473). Mean-surface contours are deterministic.
+                fmt = "{:.3f}" if s == "mean" else "{:.2f}"
+                reg(fmt.format(v), v, f"contour F1>={int(req)/100:.2f} {s} d={d}")
 b32 = boot[(boot.group == "all") & (boot.duration == 32)].set_index("alpha").f1_mean
 reg("0.13", (b32[1.5] - b32[1.0]) / 0.5, "surface slope near the crossing at d=32")
 reg("0.032", N["surface_A_minus_C_meanabs"], "run A above C, mean")
@@ -418,6 +422,38 @@ reg(f"{aro.spike.max():+.3f}", aro.spike.max(), "spike rho, max over AR orders")
 reg(f"{aro.generative.min():+.3f}", aro.generative.min(), "learned rho, min over AR orders")
 reg(f"{aro.generative.max():+.3f}", aro.generative.max(), "learned rho, max over AR orders")
 assert aro.step.min() < 0.70 < aro.step.max()   # the step's margin is order-sensitive
+reg(f"{aro.loc[4, 'step']:+.3f}", aro.loc[4, "step"], "step rho at AR order 4")
+reg(f"{aro.loc[16, 'step']:+.3f}", aro.loc[16, "step"], "step rho at AR order 16")
+assert aro.loc[4, "step"] < aro.loc[4, "generative"] and aro.loc[16, "step"] < aro.loc[16, "generative"]
+
+# exact permutation p for the six contextual channels (t approximation is anti-
+# conservative at n = 6): all 720 permutations
+import itertools  # noqa: E402
+ctx = sev[sev.cls == "contextual"]
+r0 = spearmanr(ctx.predicted_f1_ar, ctx.observed_f1).statistic
+yv = ctx.observed_f1.to_numpy()
+perm = [spearmanr(ctx.predicted_f1_ar, yv[list(p)]).statistic
+        for p in itertools.permutations(range(len(yv)))]
+reg("0.017", float(np.mean(np.abs(perm) >= abs(r0) - 1e-12)), "exact p, contextual predictive rho")
+
+# timeliness of the parametric fault models: largest P5 change across duration
+lstm_can = can[can.detector == "lstm"]
+
+
+def p5_grid(fm):
+    s = lstm_can[lstm_can.fault_model == fm]
+    return (s.assign(p5=s.n_timely_5 / s.n_seg)
+             .groupby(["alpha", "duration"]).p5.mean().unstack())
+
+
+for fm in ("noise", "step", "ramp", "spike"):
+    g = p5_grid(fm)
+    v = float((g.max(axis=1) - g.min(axis=1)).max())
+    reg(f"{v:.3f}", v, f"max P5 range across duration, {fm}")
+gr = p5_grid("ramp")
+reg("0.093", gr.loc[1.5, 16] - gr.loc[1.5, 256], "ramp P5 drop from d=16 to 256 at alpha=1.5")
+reg("0.47", spearmanr(sev.predicted_f1_dist, sev.observed_f1).statistic,
+    "abstract: distributional rho (2 d.p.)")
 
 # ============================================================ discussion
 reg("0.20", N["chance_w6_mean"], "false-call prob 6-step (2 d.p.)")
@@ -432,7 +468,12 @@ reg("0.80", spearmanr(sev.predicted_f1_ar, sev.observed_f1).statistic, "abstract
 ALLOW = {"0.10", "0.25", "0.50", "0.75", "1.00", "1.50", "0.5", "1.0", "1.5", "0.7",
          "0.8", "0.9", "0.70", "0.80", "0.30", "0.05", "0.0025", "95%", "90%", "-0.5",
          "0.90", "0.001", "0.01", "0.000", "0.019",
-         "2.0", "2.3", "2.6", "3.1", "3.4", "1.15", "1.3", "0.6"}
+         "2.0", "2.3", "2.6", "3.1", "3.4", "1.15", "1.3", "0.6",
+         # admissibility limit and train/validation split, as percentages;
+         # one-sided level of a two-sided 95% bound; LSTM dropout
+         "5%", "10%", "97.5%", "0.1",
+         # appendix: software versions and table column widths
+         "3.12", "2.5", "12.1", "3.2", "10.6"}
 # 0.019 appears as the p-value of the pooled-shape ablation (registered above as
 # its rounded value); 1.15 is \arraystretch.
 

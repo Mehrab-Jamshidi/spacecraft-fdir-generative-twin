@@ -91,6 +91,8 @@ def main():
     ax.plot([x for x, v in zip(DUR, dl) if np.isfinite(v)], [v for v in dl if np.isfinite(v)],
             "--s", color=AQUA, lw=1.6, ms=4, label="+ 80% flagged in 5 steps")
     ax.axhspan(1.5, 1.75, color=GRID, alpha=0.6, lw=0)
+    # 1 < alpha <= 1.5 is an extrapolation of the blend model (Section 4.5)
+    ax.axhspan(1.0, 1.5, facecolor="none", edgecolor="#c9c9c3", hatch="////", lw=0, zorder=0)
     ax.text(15, 1.58, "not reached in tested range", fontsize=7, color=MUTED, style="italic")
     ax.set_xscale("log", base=2)
     ax.set_xticks(DUR, DUR)

@@ -302,9 +302,11 @@ article's campaign in [`paper/`](paper/) uses deterministic kernels and re-execu
 - The sensitivity surface characterises detectability of **generator-produced** faults
   parameterised by the injection model, not of arbitrary physical faults. The thesis left its
   transfer to real faults unvalidated; the journal article tests it against the 25 real
-  anomalies of the held-out channels, scored by the same trained detector, and finds that it
-  transfers only when a real fault's severity is measured in the quantity the detector
-  responds to ([`paper/`](paper/)).
+  anomalies of the held-out channels, scored by the same trained detector. The surface ranks
+  real-fault detection better when a real fault's severity is measured in the quantity the
+  detector responds to (Spearman ρ = 0.80, against 0.47 with a distributional measure). The
+  difference is a consistent direction, not an established effect at 20 channels
+  ([`paper/`](paper/)).
 - "Oracle" appears in two distinct senses: the **within-run** oracle (best threshold for the
   Phase-4 detector, bounding the threshold-rule study) and the **real-data** oracle (best
   real-trained detector, shown for reference). They are labelled separately wherever they appear.
@@ -338,7 +340,7 @@ slides in `docs/`, do not hold as stated there. The thesis documents are left un
 | **Fault duration dominates severity** for detectability. | Mostly a scoring effect. Under point-adjust, one flagged step credits a whole fault segment, and false alarms that happen to fall inside a long fault count as detections: at α = 0.10 the chance that a fault is flagged anywhere inside it rises by 0.25 from d = 16 to d = 256, about the same as the chance that a nominal window of that length holds a false alarm. Re-scored point-wise, about half of the duration effect disappears while the severity effect remains, and the probability of flagging a fault within a fixed deadline does not depend on duration at all. |
 | The **latency surface** shows detection slowing with duration. | Mean latency averages only the faults that were flagged and cannot exceed the fault's duration, so it rises with duration whatever the detector does. The article uses the probability of detection within a deadline instead. |
 | The LSTM **reproduces Hundman et al. (2018) to within 0.006** (0.746 vs 0.752). | Not like-for-like: Hundman et al. report F0.5 at corpus level with a dynamic threshold (0.71 SMAP, 0.69 MSL), whereas 0.746 is a mean of per-channel F1 at the best (oracle) threshold per channel. Under the deployable k = 3 rule this implementation gives F1 0.637 (SMAP) and 0.709 (MSL), F0.5 0.595 and 0.662 — agreement in kind only. |
-| The generator's decisive value is as the **controllable fault source** for the sensitivity sheet. | The sheet depends on which fault model is injected, and a generator trained on the real fault record is not a better stimulus than a simple step or spike train for predicting real-fault detection. It under-produces the saturated excursion that makes up 47 % of real point-fault windows. |
+| The generator's decisive value is as the **controllable fault source** for the sensitivity sheet. | The sheet depends on which fault model is injected, and a generator trained on the real fault record is not a better stimulus for predicting real-fault detection: a simple spike train does at least as well at every AR order tested, and a step does so at the default order only. It under-produces the saturated excursion that makes up 47 % of real point-fault windows. |
 | The surfaces **reproduce to four decimals** (this README, before this update). | See *Reproducing the results* above: the aggregate surface reproduces closely, single channel-cells do not. |
 
 ---

@@ -42,6 +42,15 @@ FIG.mkdir(parents=True, exist_ok=True)
 
 BLUE, ORANGE, AQUA = "#2a78d6", "#eb6834", "#1baf7a"
 INK, MUTED, GRID = "#1a1a19", "#5c5c58", "#d8d8d4"
+EXTRAP = "#c9c9c3"
+
+
+def extrap_band(ax):
+    """Hatch 1 < alpha <= 1.5, the extrapolated range of the blend model in which
+    the nominal component enters with negative weight (Section 4.5), so that a
+    contour value read there is never mistaken for a physical fault size."""
+    ax.axhspan(1.0, 1.5, facecolor="none", edgecolor=EXTRAP, hatch="////",
+               lw=0, zorder=0)
 ALPHAS = [0.10, 0.25, 0.50, 0.75, 1.00, 1.50]
 DURATIONS = [16, 32, 64, 128, 256]
 
@@ -143,6 +152,7 @@ def fig_mdf_contour(contours: pd.DataFrame):
                     ax.fill_between(xs, lo, hi, color=c, alpha=0.11,
                                     lw=0, zorder=1)
         ax.axhspan(1.5, 2.8, color=GRID, alpha=0.45, zorder=0)
+        extrap_band(ax)
         ax.text(13.4, 2.66, "requirement not reachable at any tested severity",
                 fontsize=6.6, color=MUTED, style="italic", va="center")
         ax.set_xscale("log", base=2)
@@ -180,6 +190,7 @@ def fig_mdf_by_class(contours: pd.DataFrame):
                         arrowprops=dict(arrowstyle="-|>", color=c, lw=1.1,
                                         shrinkA=0, shrinkB=0), zorder=3)
     ax.axhspan(1.5, 2.6, color=GRID, alpha=0.45, zorder=0)
+    extrap_band(ax)
     ax.set_xscale("log", base=2)
     ax.set_xticks(DURATIONS)
     ax.set_xticklabels(DURATIONS)
@@ -189,8 +200,8 @@ def fig_mdf_by_class(contours: pd.DataFrame):
     ax.set_ylabel("minimum detectable severity $\\alpha^*$")
     ax.set_title("MDF contour at $F_1 \\geq 0.70$, by fault class",
                  loc="left", color=INK)
-    # below the grey band and to the right of the data, clear of every arrow
-    ax.legend(loc="center right", bbox_to_anchor=(1.0, 0.44))
+    # below the hatched band and to the right of the data, clear of every arrow
+    ax.legend(loc="center right", bbox_to_anchor=(1.0, 0.27))
     save(fig, "fig_mdf_by_class")
 
 
@@ -362,6 +373,7 @@ def fig_detector_comparison(ext: pd.DataFrame):
                         arrowprops=dict(arrowstyle="-|>", color=c, lw=1.1,
                                         shrinkA=0, shrinkB=0), zorder=3)
     ax.axhspan(1.5, 2.75, color=GRID, alpha=0.45, zorder=0)
+    extrap_band(ax)
     ax.text(13.6, 2.6, "not reachable at any tested severity", fontsize=6.6,
             color=MUTED, style="italic", va="center")
     ax.set_xscale("log", base=2)
@@ -469,6 +481,7 @@ def fig_fault_models(par: pd.DataFrame, gen: pd.DataFrame, cmp_: pd.DataFrame):
                         arrowprops=dict(arrowstyle="-|>", color=c, lw=1.0,
                                         shrinkA=0, shrinkB=0), zorder=3)
     ax.axhspan(1.5, 2.75, color=GRID, alpha=0.45, zorder=0)
+    extrap_band(ax)
     ax.text(13.4, 2.62, "not reachable at any tested severity", fontsize=6.4,
             color=MUTED, style="italic", va="center")
     ax.set_xscale("log", base=2)
